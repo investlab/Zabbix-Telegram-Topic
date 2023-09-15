@@ -1,4 +1,4 @@
-Zabbix to Telegram JS script
+Zabbix 5.0 to Telegram 6.8 JS script
 ==
 in extend of manual: `https://git.zabbix.com/projects/ZBX/repos/zabbix/browse/templates/media/telegram?at=release/5.0`
 

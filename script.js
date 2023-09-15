@@ -85,9 +85,11 @@
             if (params.HTTPProxy) {
                 Telegram.proxy = params.HTTPProxy;
             } 
-        
-            params.ParseMode = params.ParseMode.toLowerCase();
-            
+
+            if (params.ParseMode !== null) {
+                params.ParseMode = params.ParseMode.toLowerCase();
+            }
+
             if (['markdown', 'html', 'markdownv2'].indexOf(params.ParseMode) !== -1) {
                 Telegram.parse_mode = params.ParseMode;
             }
