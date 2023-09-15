@@ -1,6 +1,7 @@
         var Telegram = {
             token: null,
             to: null,
+            topic: null,
             message: null,
             proxy: null,
             parse_mode: null,
@@ -35,6 +36,10 @@
         
                 if (Telegram.parse_mode !== null) {
                     params['parse_mode'] = Telegram.parse_mode;
+                }
+
+                if (Telegram.topic !== null) {
+                    params['message_thread_id'] = Telegram.topic;
                 }
         
                 if (Telegram.proxy) {
