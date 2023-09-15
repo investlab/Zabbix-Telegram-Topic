@@ -1,8 +1,9 @@
 Zabbix 5.0 to Telegram 6.8 JS script
 ==
-in extend of manual: `https://git.zabbix.com/projects/ZBX/repos/zabbix/browse/templates/media/telegram?at=release/5.0`
 
-- add parameter "topic" to send message to specific Telegram Group Topic
+Provide pass message to telegram "*Topic*" form Zabbix custom alert.
+
+in extend of manual: `https://git.zabbix.com/projects/ZBX/repos/zabbix/browse/templates/media/telegram?at=release/5.0`
 
 Custom alerts, add parameters:
 - `HTTPProxy` *optional* string - url to proxy
