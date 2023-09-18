@@ -25,7 +25,7 @@ var Telegram = {
     sendMessage: function () {
         var params = {
                 chat_id: Telegram.to,
-                message_thread_id: null,
+                message_thread_id: Telegram.topic,
                 text: Telegram.message,
                 disable_web_page_preview: true,
                 disable_notification: false
@@ -35,14 +35,7 @@ var Telegram = {
             request = new CurlHttpRequest(),
             url = 'https://api.telegram.org/bot' + Telegram.token + '/sendMessage';
 
-        if (Telegram.parse_mode !== null) {
-            params['parse_mode'] = Telegram.parse_mode;
-        }
-
         //modification from github.com/zh1gr
-        if (Telegram.topic) {
-           params.message_thread_id = Telegram.topic;
-        }
 
         if (Telegram.proxy) {
             request.SetProxy(Telegram.proxy);
@@ -84,6 +77,10 @@ try {
 
     if (params.HTTPProxy) {
         Telegram.proxy = params.HTTPProxy;
+    }
+
+    if (params.Topic) {
+        Telegram.topic = params.Topic
     }
 
     Telegram.to = params.To;
