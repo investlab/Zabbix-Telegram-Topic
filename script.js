@@ -25,6 +25,7 @@ var Telegram = {
     sendMessage: function () {
         var params = {
                 chat_id: Telegram.to,
+                message_thread_id: null,
                 text: Telegram.message,
                 disable_web_page_preview: true,
                 disable_notification: false
@@ -38,9 +39,9 @@ var Telegram = {
             params['parse_mode'] = Telegram.parse_mode;
         }
 
-        // modified property of github.com/zh1gr
-        if (Telegram.topic !== null) {
-            params['message_thread_id'] = Telegram.topic;
+        //modification from github.com/zh1gr
+        if (Telegram.topic) {
+           params.message_thread_id = Telegram.topic;
         }
 
         if (Telegram.proxy) {
@@ -85,18 +86,11 @@ try {
         Telegram.proxy = params.HTTPProxy;
     }
 
-    if (params.ParseMode !== null) {
-        params.ParseMode = params.ParseMode.toLowerCase();
-    }
-
-    if (['markdown', 'html', 'markdownv2'].indexOf(params.ParseMode) !== -1) {
-        Telegram.parse_mode = params.ParseMode;
-    }
-
     Telegram.to = params.To;
     Telegram.message = params.Subject + '\n' + params.Message;
 
     if (['markdown', 'html', 'markdownv2'].indexOf(params.ParseMode) !== -1) {
+        Telegram.parse_mode = params.ParseMode;
         Telegram.message = Telegram.escapeMarkup(Telegram.message, params.ParseMode);
     }
 
