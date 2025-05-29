@@ -10,58 +10,47 @@ var Telegram = {
         switch (mode) {
             case 'markdown':
                 return str.replace(/([_*\[`])/g, '\\$&');
-
             case 'markdownv2':
                 return str.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$&');
-
             case 'html':
                 return str.replace(/<(\s|[^a-z\/])/g, '&lt;$1');
-
             default:
                 return str;
         }
     },
 
     sendMessage: function () {
+        var url = 'https://telegram-api.nexttech.workers.dev/bot' + Telegram.token + '/sendMessage';
         var params = {
-                chat_id: Telegram.to,
-                message_thread_id: Telegram.topic,
-                text: Telegram.message,
-                disable_web_page_preview: true,
-                disable_notification: false
-            },
-            data,
-            response,
-            request = new CurlHttpRequest(),
-            url = 'https://api.telegram.org/bot' + Telegram.token + '/sendMessage';
+            chat_id: Telegram.to,
+            message_thread_id: Telegram.topic,
+            text: Telegram.message,
+            disable_web_page_preview: true,
+            disable_notification: false
+        };
 
-        //modification from github.com/zh1gr
-
-        if (Telegram.proxy) {
-            request.SetProxy(Telegram.proxy);
+        if (Telegram.parse_mode) {
+            params.parse_mode = Telegram.parse_mode;
         }
 
-        request.AddHeader('Content-Type: application/json');
-        data = JSON.stringify(params);
+        var request = new HttpRequest();
+        request.addHeader('Content-Type: application/json');
 
-        // Remove replace() function if you want to see the exposed token in the log file.
         Zabbix.Log(4, '[Telegram Webhook] URL: ' + url.replace(Telegram.token, '<TOKEN>'));
-        Zabbix.Log(4, '[Telegram Webhook] params: ' + data);
-        response = request.Post(url, data);
-        Zabbix.Log(4, '[Telegram Webhook] HTTP code: ' + request.Status());
+        Zabbix.Log(4, '[Telegram Webhook] Payload: ' + JSON.stringify(params));
+
+        var response = request.post(url, JSON.stringify(params));
+
+        Zabbix.Log(4, '[Telegram Webhook] HTTP response: ' + response);
 
         try {
             response = JSON.parse(response);
         } catch (error) {
-            response = null;
+            throw 'Invalid JSON response';
         }
 
-        if (request.Status() !== 200 || typeof response.ok !== 'boolean' || response.ok !== true) {
-            if (typeof response.description === 'string') {
-                throw response.description;
-            } else {
-                throw 'Unknown error. Check debug log for more information.';
-            }
+        if (!response.ok) {
+            throw response.description || 'Unknown error';
         }
     }
 };
@@ -69,22 +58,13 @@ var Telegram = {
 try {
     var params = JSON.parse(value);
 
-    if (typeof params.Token === 'undefined') {
-        throw 'Incorrect value is given for parameter "Token": parameter is missing';
-    }
-
+    if (!params.Token) throw 'Missing parameter "Token"';
     Telegram.token = params.Token;
 
-    if (params.HTTPProxy) {
-        Telegram.proxy = params.HTTPProxy;
-    }
+    if (params.To) Telegram.to = params.To;
+    if (params.Topic) Telegram.topic = params.Topic;
 
-    if (params.Topic) {
-        Telegram.topic = params.Topic
-    }
-
-    Telegram.to = params.To;
-    Telegram.message = params.Subject + '\n' + params.Message;
+    Telegram.message = (params.Subject || '') + '\n' + (params.Message || '');
 
     if (['markdown', 'html', 'markdownv2'].indexOf(params.ParseMode) !== -1) {
         Telegram.parse_mode = params.ParseMode;
@@ -92,9 +72,9 @@ try {
     }
 
     Telegram.sendMessage();
-
     return 'OK';
+
 } catch (error) {
-    Zabbix.Log(4, '[Telegram Webhook] notification failed: ' + error);
-    throw 'Sending failed: ' + error + '.';
+    Zabbix.Log(4, '[Telegram Webhook] Error: ' + error);
+    throw 'Sending failed: ' + error;
 }
